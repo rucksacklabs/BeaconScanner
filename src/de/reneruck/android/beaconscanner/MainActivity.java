@@ -1,7 +1,6 @@
 package de.reneruck.android.beaconscanner;
 
 import java.util.List;
-import java.util.Arrays;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -21,9 +20,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +47,14 @@ public class MainActivity extends Activity {
     private BluetoothDevice mDevice;
     private int mState;
 	private List<BluetoothGattService> mServices;
-
+	private SeekBar mSeekbarCI;
+	private SeekBar mSeekbarSL;
+	private SeekBar mSeekbarSR;
+	private TextView mCIValue;
+	private TextView mSLValue;
+	private TextView mSRValue;
+	private boolean mInitSeekbars = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -60,8 +69,9 @@ public class MainActivity extends Activity {
             finish();
             return;
         }
+		((Button) findViewById(R.id.button_settings_update)).setEnabled(false);
 
-        init();
+		init();
 	}
 	
     @Override
@@ -120,6 +130,49 @@ public class MainActivity extends Activity {
             }
         }
     };
+	
+	private OnSeekBarChangeListener mSeekbarDragListener = new OnSeekBarChangeListener() {
+		
+		@Override
+		public void onStopTrackingTouch(SeekBar seekBar) {
+			((Button) findViewById(R.id.button_settings_update)).setEnabled(true);
+		}
+		
+		@Override
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			((Button) findViewById(R.id.button_settings_update)).setEnabled(false);
+		}
+		
+		@Override
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+			if(mInitSeekbars) {
+				switch (seekBar.getId()) {
+				case R.id.seekBar_CI:
+					mCIValue.setText(progress * 1.25 + " ms");
+					break;
+				case R.id.seekBar_SL:
+					mSLValue.setText(Integer.toString(progress));
+					break;
+				case R.id.seekBar_SR:
+					mSRValue.setText(progress + " Hz");
+					break;
+	
+				default:
+					break;
+				}
+			}
+		}
+	};
+	private OnClickListener mUpdateButtonListener = new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			int newBufferSize = (mSeekbarCI.getProgress() * mSeekbarSL.getProgress()) / (60/mSeekbarSL.getProgress());
+			((TextView)findViewById(R.id.buffer_size)).setText(newBufferSize + " bytes");
+			((Button) v).setEnabled(false);
+		}
+	};
+
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -127,13 +180,23 @@ public class MainActivity extends Activity {
     	switch (requestCode) {
 		case REQUEST_SELECT_DEVICE:
 			
-			Bundle extras = data.getExtras();
-			mDevice = extras.getParcelable(BluetoothDevice.EXTRA_DEVICE);
 			
-			((TextView)findViewById(R.id.device_name)).setText(mDevice.getName());
-			((TextView)findViewById(R.id.device_address)).setText(mDevice.getAddress());
-			
-			getActionBar().setSubtitle("- Connected -");
+			if(resultCode != Activity.RESULT_CANCELED && data != null) {
+				
+				Bundle extras = data.getExtras();
+				mDevice = extras.getParcelable(BluetoothDevice.EXTRA_DEVICE);
+				
+				((TextView)findViewById(R.id.device_name)).setText(mDevice.getName());
+				((TextView)findViewById(R.id.device_address)).setText(mDevice.getAddress());
+				
+				initSeekbars();
+				
+				((Button) findViewById(R.id.button_settings_update)).setOnClickListener(mUpdateButtonListener );
+				
+				getActionBar().setSubtitle("- Connected -");
+			} else {
+				Toast.makeText(getApplicationContext(), "Device selection cancelled", Toast.LENGTH_SHORT).show();
+			}
 			
 			break;
 		case REQUEST_ENABLE_BT:
@@ -147,6 +210,26 @@ public class MainActivity extends Activity {
 			break;
 		}
     }
+
+	private void initSeekbars() {
+		mSeekbarCI = (SeekBar)findViewById(R.id.seekBar_CI);
+		mSeekbarSL = (SeekBar)findViewById(R.id.seekBar_SL);
+		mSeekbarSR = (SeekBar)findViewById(R.id.seekBar_SR);
+		
+		mSeekbarCI.setOnSeekBarChangeListener(mSeekbarDragListener);
+		mSeekbarSL.setOnSeekBarChangeListener(mSeekbarDragListener);
+		mSeekbarSR.setOnSeekBarChangeListener(mSeekbarDragListener);
+
+		mSeekbarCI.setMax(5000);
+		mSeekbarSL.setMax(10);
+		mSeekbarSR.setMax(9000);
+		
+		mCIValue = (TextView)findViewById(R.id.CI_value);
+		mSLValue = (TextView)findViewById(R.id.SL_value);
+		mSRValue = (TextView)findViewById(R.id.SR_value);
+		
+		mInitSeekbars = true;
+	}
     
     @Override
     public void onDestroy() {
@@ -217,19 +300,13 @@ public class MainActivity extends Activity {
 //            	int hrmEEValue = data.getInt(HRPService.HRM_EEVALUE);
 //            	ArrayList<Integer> hrmRRValue = data.getIntegerArrayList(HRPService.HRM_RRVALUE);
             	Log.d(TAG, "HRP: " + hrmValue);
-            	((TextView) findViewById(R.id.HRP_value)).setText(Arrays.toString(hrmValue) + " bpm");
+//            	((TextView) findViewById(R.id.HRP_value)).setText(Arrays.toString(hrmValue) + " bpm");
             	break;
             default:
                 super.handleMessage(msg);
             }
         }
     };
-    
-	private void listServices(List<BluetoothGattService> services) {
-		mServices = services;
-		ListView listView = (ListView) findViewById(R.id.services_list);
-		listView.setAdapter(new ServiceAdapter(mServices));
-	}
     
 	private class ServiceAdapter extends BaseAdapter {
 
