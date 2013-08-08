@@ -1,6 +1,9 @@
 package de.reneruck.android.beaconscanner;
 
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -13,6 +16,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Handler.Callback;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
@@ -54,7 +58,8 @@ public class MainActivity extends Activity {
 	private TextView mSLValue;
 	private TextView mSRValue;
 	private boolean mInitSeekbars = false;
-	
+	private boolean mIsConnected = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -135,12 +140,14 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
-			((Button) findViewById(R.id.button_settings_update)).setEnabled(true);
+			if(HRPService.sendDone) {
+				((Button) findViewById(R.id.button_settings_update)).setEnabled(true);
+			}
 		}
 		
 		@Override
 		public void onStartTrackingTouch(SeekBar seekBar) {
-			((Button) findViewById(R.id.button_settings_update)).setEnabled(false);
+//			((Button) findViewById(R.id.button_settings_update)).setEnabled(false);
 		}
 		
 		@Override
@@ -167,12 +174,51 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onClick(View v) {
-			int newBufferSize = (mSeekbarCI.getProgress() * mSeekbarSL.getProgress()) / (60/mSeekbarSL.getProgress());
-			((TextView)findViewById(R.id.buffer_size)).setText(newBufferSize + " bytes");
-			((Button) v).setEnabled(false);
+			
+			if(mIsConnected) {
+				WriteCharacteristicAsync writeCharacteristicAsync = new WriteCharacteristicAsync(mService, characteristicWritingCallback);
+				writeCharacteristicAsync.execute(
+				new CharacteristicWriteData(mDevice,
+						HRPService.CONNECTION_CONTROL_SERVICE,
+						HRPService.CONNECTION_CONTROL_CI_CHARAC, 
+						BigInteger.valueOf(mSeekbarCI.getProgress()).toByteArray()),
+				new CharacteristicWriteData(mDevice,
+						HRPService.CONNECTION_CONTROL_SERVICE,
+						HRPService.CONNECTION_CONTROL_SL_CHARAC, 
+						BigInteger.valueOf(mSeekbarSL.getProgress()).toByteArray()),
+				new CharacteristicWriteData(mDevice,
+						HRPService.CONNECTION_CONTROL_SERVICE,
+						HRPService.CONNECTION_CONTROL_SR_CHARAC, 
+						BigInteger.valueOf(mSeekbarSR.getProgress()).toByteArray()));
+				
+				findViewById(R.id.progressBar1).setVisibility(View.VISIBLE);
+				((Button) v).setEnabled(false);
+			} else {
+				Toast.makeText(getApplicationContext(), "Not connected to a Device!", Toast.LENGTH_SHORT).show();
+			}
 		}
 	};
 
+	private Callback characteristicWritingCallback = new Callback() {
+
+		@Override
+		public boolean handleMessage(Message msg) {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					findViewById(R.id.progressBar1).setVisibility(View.INVISIBLE);
+					((Button)findViewById(R.id.button_settings_update)).setEnabled(true);
+				}
+			});
+			return false;
+		}
+		
+	};
+	
+	public static byte[] toByteArray(double value) {
+	    byte[] bytes = new byte[8];
+	    ByteBuffer.wrap(bytes).putDouble(value);
+	    return bytes;
+	}
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -192,7 +238,7 @@ public class MainActivity extends Activity {
 				initSeekbars();
 				
 				((Button) findViewById(R.id.button_settings_update)).setOnClickListener(mUpdateButtonListener );
-				
+				mIsConnected = true;
 				getActionBar().setSubtitle("- Connected -");
 			} else {
 				Toast.makeText(getApplicationContext(), "Device selection cancelled", Toast.LENGTH_SHORT).show();
@@ -220,7 +266,7 @@ public class MainActivity extends Activity {
 		mSeekbarSL.setOnSeekBarChangeListener(mSeekbarDragListener);
 		mSeekbarSR.setOnSeekBarChangeListener(mSeekbarDragListener);
 
-		mSeekbarCI.setMax(5000);
+		mSeekbarCI.setMax(3200);
 		mSeekbarSL.setMax(10);
 		mSeekbarSR.setMax(9000);
 		
@@ -300,7 +346,7 @@ public class MainActivity extends Activity {
 //            	int hrmEEValue = data.getInt(HRPService.HRM_EEVALUE);
 //            	ArrayList<Integer> hrmRRValue = data.getIntegerArrayList(HRPService.HRM_RRVALUE);
             	Log.d(TAG, "HRP: " + hrmValue);
-//            	((TextView) findViewById(R.id.HRP_value)).setText(Arrays.toString(hrmValue) + " bpm");
+            	((TextView) findViewById(R.id.HRP_value)).setText(Arrays.toString(hrmValue) + " bpm");
             	break;
             default:
                 super.handleMessage(msg);
