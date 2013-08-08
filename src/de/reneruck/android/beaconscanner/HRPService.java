@@ -48,6 +48,12 @@ public class HRPService extends Service {
 	public static final UUID HRP_SERVICE = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
 	public static final UUID DEVICE_INFORMATION = UUID.fromString("0000180A-0000-1000-8000-00805f9b34fb");
 	public static final UUID HEART_RATE_MEASUREMENT_CHARAC = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb");
+	
+	public static final UUID CONNECTION_CONTROL_SERVICE = UUID.fromString("00001111-0000-1000-8000-00805f9b34fb");
+	public static final UUID CONNECTION_CONTROL_CI_CHARAC = UUID.fromString("00000029-0000-1000-8000-00805f9b34fb");
+	public static final UUID CONNECTION_CONTROL_SL_CHARAC = UUID.fromString("00001113-0000-1000-8000-00805f9b34fb");
+	public static final UUID CONNECTION_CONTROL_SR_CHARAC = UUID.fromString("00001114-0000-1000-8000-00805f9b34fb");
+	
 	public static final UUID CCC = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 	public static final UUID BODY_SENSOR_LOCATION = UUID.fromString("00002A38-0000-1000-8000-00805f9b34fb");
 	public static final UUID SERIAL_NUMBER_STRING = UUID.fromString("00002A25-0000-1000-8000-00805f9b34fb");
@@ -99,6 +105,8 @@ public class HRPService extends Service {
 	public static final int SEVENTH_BITMASK = FIRST_BITMASK << 6;
 	public static final int EIGTH_BITMASK = FIRST_BITMASK << 7;
 
+	public static boolean sendDone = true;
+	
 	private BluetoothAdapter mBtAdapter = null;
 	public BluetoothGatt mBluetoothGatt = null;
 	private Handler mActivityHandler = null;
@@ -175,10 +183,38 @@ public class HRPService extends Service {
 		}
 	};
 
+	
 	/**
 	 * GATT client callbacks
 	 */
 	private BluetoothGattCallback mGattCallbacks = new BluetoothGattCallback() {
+
+		@Override
+		public void onCharacteristicWrite(BluetoothGattCharacteristic paramBluetoothGattCharacteristic, int paramInt) {
+			Log.d(TAG, "OnCharacteristicWrite UUDI: " + paramBluetoothGattCharacteristic.getUuid() + " Result: " + resultCodeToString(paramInt));
+			HRPService.sendDone = true;
+		}
+
+		private String resultCodeToString(int paramInt) {
+			switch (paramInt) {
+				case BluetoothGatt.GATT_SUCCESS:
+					return "SUCCESS";
+				case BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH:
+					return "GATT_INVALID_ATTRIBUTE_LENGTH";
+				case BluetoothGatt.GATT_WRITE_NOT_PERMITTED:
+					return "GATT_WRITE_NOT_PERMITTED";
+				case BluetoothGatt.GATT_ALREADY_OPEN:
+					return "GATT_ALREADY_OPEN";
+				case BluetoothGatt.GATT_ERROR:
+					return "GATT_ERROR";
+				case BluetoothGatt.GATT_INVALID_OFFSET:
+					return "GATT_INVALID_OFFSET";
+				case BluetoothGatt.GATT_INTERNAL_ERROR:
+					return "GATT_INTERNAL_ERROR";
+			default:
+				return "UNKNOWN";
+			}
+		}
 
 		@Override
 		public void onScanResult(BluetoothDevice device, int rssi, byte[] scanRecord) {
@@ -659,5 +695,44 @@ public class HRPService extends Service {
 		if (value != null && value[0] == BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE[0]) {
 			enableNotification(false, mHRMcharac);
 		}
+	}
+	
+	synchronized public boolean writeCharacteristic(BluetoothDevice device, UUID service, UUID characteristic, byte[] value) {
+		BluetoothGattService gattService = mBluetoothGatt.getService(device, service);
+
+		if(gattService != null) {
+			BluetoothGattCharacteristic gattCharacteristic = gattService.getCharacteristic(characteristic);
+			
+			if(gattCharacteristic != null) {
+				
+				Log.d(TAG, "Send " + toHexString(value) + " to " + characteristic);
+				
+				gattCharacteristic.setValue(value);
+				boolean writeCharacteristic = mBluetoothGatt.writeCharacteristic(gattCharacteristic);
+				return writeCharacteristic;
+			} else {
+				Log.e(TAG, "Characteristic " + characteristic + " not available");
+			}
+		} else {
+			Log.e(TAG, "GATT service not available");
+		}
+		return false;
+	}
+	
+	public static String toHexString(byte[] bytes) {
+	    char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+	    char[] hexChars = new char[bytes.length * 2];
+	    int v;
+	    for ( int j = 0; j < bytes.length; j++ ) {
+	        v = bytes[j] & 0xFF;
+	        hexChars[j*2] = hexArray[v/16];
+	        hexChars[j*2 + 1] = hexArray[v%16];
+	    }
+	    return new String(hexChars);
+	}
+
+	public boolean writeCharacteristic(
+			CharacteristicWriteData data) {
+		return writeCharacteristic(data.getDevice(), data.getService(), data.getCharacteristic(), data.getData());
 	}
 }
