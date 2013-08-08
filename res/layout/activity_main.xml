@@ -9,6 +9,7 @@
     tools:context=".MainActivity" >
 
     <TableLayout
+        android:id="@+id/tableLayout1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
@@ -24,18 +25,17 @@
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_weight="1"
-                android:text="Name:"/>
+                android:text="Name:"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/device_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-" 
-                android:textAlignment="textEnd"
-                android:layout_weight="1.5"/>
-            
+                android:layout_weight="1.5"
+                android:text="-"
+                android:textAlignment="textEnd" />
         </TableRow>
 
         <TableRow
@@ -43,152 +43,153 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5sp" >
-            
-			<TextView
+
+            <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_weight="1"
-                android:text="Address:"/>
+                android:text="Address:"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/device_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-" 
-                android:textAlignment="textEnd"
-                android:layout_weight="1.5"/>
+                android:layout_weight="1.5"
+                android:text="-"
+                android:textAlignment="textEnd" />
         </TableRow>
 
         <TableRow
             android:id="@+id/tableRow4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="5sp">
-        
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5sp" >
+
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_weight="1"
-                android:text="BPM:"/>
+                android:text="BPM:"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/HRP_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-" 
-                android:textAlignment="textEnd"
-                android:layout_weight="1.5"/>
-            
+                android:layout_weight="1.5"
+                android:text="-"
+                android:textAlignment="textEnd" />
         </TableRow>
+
         <TableRow
             android:id="@+id/tableRow4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="5sp">
-        
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5sp" >
+
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_weight="1"
-                android:text="Buffer size:"/>
+                android:text="Buffer size:"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/buffer_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="20" 
-                android:textAlignment="textEnd"
-                android:layout_weight="1.5"/>
-            
+                android:layout_weight="1.5"
+                android:text="20"
+                android:textAlignment="textEnd" />
         </TableRow>
+
         <TableRow
             android:id="@+id/tableRow4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="10sp">
-        
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10sp" >
+
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_weight="0.01"
-                android:text="CI"/>
+                android:text="CI"
+                android:textStyle="bold" />
 
             <SeekBar
                 android:id="@+id/seekBar_CI"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" 
-                android:layout_weight="1"/>
-            
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/CI_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.1"
-                android:text="- ms"/>
+                android:text="- ms" />
         </TableRow>
+
         <TableRow
             android:id="@+id/tableRow4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="10sp">
-        
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10sp" >
+
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_weight="0.01"
-                android:text="SL"/>
+                android:text="SL"
+                android:textStyle="bold" />
 
             <SeekBar
                 android:id="@+id/seekBar_SL"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" 
-                android:layout_weight="1"/>
-            
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/SL_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.1"
-                android:text="-"/>
+                android:text="-" />
         </TableRow>
+
         <TableRow
             android:id="@+id/tableRow4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="10sp">
-        
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10sp" >
+
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_weight="0.01"
-                android:text="SR"/>
+                android:text="SR"
+                android:textStyle="bold" />
 
             <SeekBar
                 android:id="@+id/seekBar_SR"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" 
-                android:layout_weight="1"/>
-            
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/SR_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.1"
-                android:text="0 Hz"/>
+                android:text="0 Hz" />
         </TableRow>
-
     </TableLayout>
 
     <Button
@@ -198,5 +199,13 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="Update" />
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/button_settings_update"
+        android:layout_toLeftOf="@+id/button_settings_update" />
 
 </RelativeLayout>
