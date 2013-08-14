@@ -54,9 +54,11 @@ public class MainActivity extends Activity {
 	private SeekBar mSeekbarCI;
 	private SeekBar mSeekbarSL;
 	private SeekBar mSeekbarSR;
+	private SeekBar mSeekbarBL;
 	private TextView mCIValue;
 	private TextView mSLValue;
 	private TextView mSRValue;
+	private TextView mBLValue;
 	private boolean mInitSeekbars = false;
 	private boolean mIsConnected = false;
 
@@ -163,6 +165,9 @@ public class MainActivity extends Activity {
 				case R.id.seekBar_SR:
 					mSRValue.setText(progress + " Hz");
 					break;
+				case R.id.seekBar_BL:
+					mBLValue.setText(progress + " bytes");
+					break;
 	
 				default:
 					break;
@@ -189,7 +194,11 @@ public class MainActivity extends Activity {
 				new CharacteristicWriteData(mDevice,
 						HRPService.CONNECTION_CONTROL_SERVICE,
 						HRPService.CONNECTION_CONTROL_SR_CHARAC, 
-						BigInteger.valueOf(mSeekbarSR.getProgress()).toByteArray()));
+						BigInteger.valueOf(mSeekbarSR.getProgress()).toByteArray()),
+				new CharacteristicWriteData(mDevice,
+						HRPService.CONNECTION_CONTROL_SERVICE,
+						HRPService.CONNECTION_CONTROL_BL_CHARAC, 
+						BigInteger.valueOf(mSeekbarBL.getProgress()).toByteArray()));
 				
 				findViewById(R.id.progressBar1).setVisibility(View.VISIBLE);
 				((Button) v).setEnabled(false);
@@ -261,18 +270,22 @@ public class MainActivity extends Activity {
 		mSeekbarCI = (SeekBar)findViewById(R.id.seekBar_CI);
 		mSeekbarSL = (SeekBar)findViewById(R.id.seekBar_SL);
 		mSeekbarSR = (SeekBar)findViewById(R.id.seekBar_SR);
+		mSeekbarBL = (SeekBar)findViewById(R.id.seekBar_BL);
 		
 		mSeekbarCI.setOnSeekBarChangeListener(mSeekbarDragListener);
 		mSeekbarSL.setOnSeekBarChangeListener(mSeekbarDragListener);
 		mSeekbarSR.setOnSeekBarChangeListener(mSeekbarDragListener);
+		mSeekbarBL.setOnSeekBarChangeListener(mSeekbarDragListener);
 
 		mSeekbarCI.setMax(3200);
 		mSeekbarSL.setMax(10);
-		mSeekbarSR.setMax(9000);
+		mSeekbarSR.setMax(1000);
+		mSeekbarBL.setMax(60);
 		
 		mCIValue = (TextView)findViewById(R.id.CI_value);
 		mSLValue = (TextView)findViewById(R.id.SL_value);
 		mSRValue = (TextView)findViewById(R.id.SR_value);
+		mBLValue = (TextView)findViewById(R.id.BL_value);
 		
 		mInitSeekbars = true;
 	}
@@ -345,6 +358,7 @@ public class MainActivity extends Activity {
             	int[] hrmValue = data.getIntArray(HRPService.HRM_VALUE);
 //            	int hrmEEValue = data.getInt(HRPService.HRM_EEVALUE);
 //            	ArrayList<Integer> hrmRRValue = data.getIntegerArrayList(HRPService.HRM_RRVALUE);
+            	
             	Log.d(TAG, "HRP: " + hrmValue);
             	((TextView) findViewById(R.id.HRP_value)).setText(Arrays.toString(hrmValue) + " bpm");
             	break;

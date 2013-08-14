@@ -16,9 +16,7 @@
 
 package de.reneruck.android.beaconscanner;
 
-import java.lang.reflect.Array;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +51,7 @@ public class HRPService extends Service {
 	public static final UUID CONNECTION_CONTROL_CI_CHARAC = UUID.fromString("00000029-0000-1000-8000-00805f9b34fb");
 	public static final UUID CONNECTION_CONTROL_SL_CHARAC = UUID.fromString("00001113-0000-1000-8000-00805f9b34fb");
 	public static final UUID CONNECTION_CONTROL_SR_CHARAC = UUID.fromString("00001114-0000-1000-8000-00805f9b34fb");
+	public static final UUID CONNECTION_CONTROL_BL_CHARAC = UUID.fromString("00001115-0000-1000-8000-00805f9b34fb");
 	
 	public static final UUID CCC = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 	public static final UUID BODY_SENSOR_LOCATION = UUID.fromString("00002A38-0000-1000-8000-00805f9b34fb");
