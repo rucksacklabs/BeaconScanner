@@ -230,8 +230,9 @@ public class HRPService extends Service {
 				mBundle.putInt(EXTRA_SOURCE, DEVICE_SOURCE_SCAN);
 				msg.setData(mBundle);
 				msg.sendToTarget();
-			} else
+			} else {
 				Log.i(TAG, "device =" + device + " is in Brodacast mode, hence not displaying");
+			}
 		}
 
 		private String getUUID(byte[] scanRecord) {
