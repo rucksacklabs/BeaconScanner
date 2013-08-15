@@ -279,7 +279,7 @@ public class MainActivity extends Activity {
 
 		mSeekbarCI.setMax(3200);
 		mSeekbarSL.setMax(10);
-		mSeekbarSR.setMax(1000);
+		mSeekbarSR.setMax(100);
 		mSeekbarBL.setMax(60);
 		
 		mCIValue = (TextView)findViewById(R.id.CI_value);
